@@ -1,0 +1,134 @@
+#!/usr/bin/env ruby
+
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'chronos'))
+require 'trollop'
+require 'json'
+require 'terminal-table'
+
+## Sub commands
+
+SUB_COMMANDS = %w[list delete delete_all start add] # TODO: delete_tasks add_dependency add_docker graph task]
+
+# list
+def subcmd_list(cmd_opts)
+  rows = []
+  Chronos.list.each do |job|
+    cmd = job['command'] || ''
+    cmd = "#{cmd[0..50]}..." if cmd.size > 50
+    rows << [ job['name'], job['owner'], cmd, job['cpus'], job['mem'], job['disk'], job['disabled'], job['schedule'] ]
+  end
+  puts Terminal::Table.new :headings => ['Name', 'Owner', 'Command', 'CPU', 'MEM', 'Disk', 'Disabled', 'Schedule'], :rows => rows
+end
+
+# add
+def subcmd_add(cmd_opts)
+  job = JSON.parse(cmd_opts[:job] == '-' ? $stdin.read : File.read(cmd_opts[:job]))
+  Chronos.add(job)
+end
+
+# delete
+def subcmd_delete(cmd_opts)
+  Chronos.delete(cmd_opts[:name])
+end
+
+# delete_all
+def subcmd_delete_all(cmd_opts)
+  Chronos.delete_all
+end
+
+# start
+def subcmd_start(cmd_opts)
+  Chronos.start(cmd_opts[:name])
+end
+
+## Commands
+
+# parse global options
+def parse_global_opts
+  global_opts = Trollop.options do
+    version Chronos::VERSION
+    banner <<-EOS
+Usage: chronos [global options] [command] [options]
+
+Available commands:
+
+  list           List all jobs
+  delete         Delete a job
+  delete_all     Delete all jobs
+  start          Start a job
+  add            Add a new job
+
+  TODO:
+  #delete_tasks   Delete all tasks of a job
+  #add_dependency Add a new job add_dependency
+  #add_docker     Add a new docker job
+  #graph          See the dependencies graph
+  #task           Get a task status
+
+Global options:
+EOS
+
+    opt :url, 'Chronos host (default http://localhost:4400, or CHRONOS_URL)',
+      :short => '-c', :type => String
+    opt :username, 'User name to authenticate against Chronos (optional, default unset, or CHRONOS_USER).',
+      :short => '-u', :type => String
+    opt :password, 'Password to authenticate against Chronos (optional, default unset, or CHRONOS_PASSWORD).',
+      :short => '-p', :type => String
+    stop_on SUB_COMMANDS
+  end
+  return global_opts
+end
+
+# set global options to Marathon API
+def set_global_opts(global_opts)
+  # Set client's URL
+  Chronos.url = global_opts[:url] if global_opts[:url]
+  global_opts.delete(:url)
+  # Set client's options
+  Chronos.options = global_opts if global_opts.size > 0
+end
+
+# get the subcommand
+def parse_subcmd
+  cmd = ARGV.shift
+  return cmd
+end
+
+# parse subcommand specific options
+def parse_subcmd_opts(cmd)
+  cmd_opts = case cmd
+    when 'add'
+      Trollop.options do
+        opt :job, 'A JSON formatted file to read job details from. (use - to read from stdin)', short: 'j', type: String, required: true
+      end
+    when 'delete'
+      Trollop.options do
+        opt :name, 'The name of the job to delete', short: 'n', type: String, required: true
+      end
+    when 'start'
+      Trollop.options do
+        opt :name, 'The name of the job to start', short: 'n', type: String, required: true
+      end
+    else
+      {}
+    end
+
+  return cmd_opts
+end
+
+# Run selected subcmd
+def run_subcmd(cmd, cmd_opts)
+  if SUB_COMMANDS.include?(cmd)
+    send("subcmd_#{cmd}", cmd_opts)
+  else
+    Trollop.die "unknown subcommand #{cmd.inspect}"
+  end
+end
+
+global_opts = parse_global_opts
+set_global_opts(global_opts)
+
+cmd = parse_subcmd
+cmd_opts = parse_subcmd_opts(cmd)
+
+run_subcmd(cmd, cmd_opts)
