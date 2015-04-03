@@ -1,0 +1,28 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:4400/scheduler/jobs
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      User-Agent:
+      - Chronos-API 1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '[{"name":"SAMPLE_JOB1","command":"echo FOO","shell":true,"epsilon":"PT15M","executor":"","executorFlags":"","retries":2,"owner":"chronos@algolia.com","async":false,"successCount":0,"errorCount":0,"lastSuccess":"","lastError":"","cpus":0.1,"disk":256.0,"mem":128.0,"disabled":false,"softError":false,"errorsSinceLastSuccess":0,"uris":[],"environmentVariables":[],"arguments":[],"highPriority":false,"runAsUser":"root","schedule":"R10/2012-10-01T05:52:00Z/PT2S","scheduleTimeZone":""}]'
+    http_version:
+  recorded_at: Fri, 03 Apr 2015 19:18:04 GMT
+recorded_with: VCR 2.9.3

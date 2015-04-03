@@ -2,8 +2,17 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'rspec'
 require 'rspec/its'
+require 'vcr'
 require 'webmock'
 require 'chronos'
+
+VCR.configure do |c|
+  c.allow_http_connections_when_no_cassette = false
+  c.cassette_library_dir = "spec/fixtures"
+  #c.debug_logger = $stdout
+  c.hook_into :webmock
+  c.configure_rspec_metadata!
+end
 
 RSpec.shared_context "local paths" do
   def project_dir

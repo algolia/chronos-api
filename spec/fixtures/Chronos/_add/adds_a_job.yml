@@ -1,0 +1,25 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:4400/scheduler/iso8601
+    body:
+      encoding: UTF-8
+      string: '{"schedule":"R10/2012-10-01T05:52:00Z/PT2S","name":"SAMPLE_JOB1","epsilon":"PT15M","command":"echo FOO","owner":"chronos@algolia.com","async":false}'
+    headers:
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      User-Agent:
+      - Chronos-API 0.0.1
+  response:
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: UTF-8
+      string: ""
+    http_version: 
+  recorded_at: Fri, 03 Apr 2015 19:18:04 GMT
+recorded_with: VCR 2.9.3

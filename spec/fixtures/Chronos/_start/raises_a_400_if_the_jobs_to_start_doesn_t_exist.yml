@@ -1,0 +1,25 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:4400/scheduler/job/doesnt_exist
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      User-Agent:
+      - Chronos-API 0.0.1
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    body:
+      encoding: UTF-8
+      string: ""
+    http_version: 
+  recorded_at: Fri, 03 Apr 2015 19:44:16 GMT
+recorded_with: VCR 2.9.3

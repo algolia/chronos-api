@@ -55,4 +55,65 @@ describe Chronos do
     end
   end
 
+  describe '.list' do
+    subject { described_class }
+
+    it 'lists jobs', :vcr do
+      jobs = described_class.list
+      expect(jobs.size).to eq(1)
+      expect(jobs[0]['name']).to eq('SAMPLE_JOB1')
+    end
+  end
+
+  describe '.add' do
+    subject { described_class }
+
+    it 'adds a job', :vcr do
+      described_class.add({
+        schedule: 'R10/2012-10-01T05:52:00Z/PT2S',
+        name: 'SAMPLE_JOB1',
+        epsilon: 'PT15M',
+        command: 'echo FOO',
+        owner: 'chronos@algolia.com',
+        async: false
+      })
+    end
+  end
+
+  describe '.delete' do
+    subject { described_class }
+
+    it 'deletes a job', :vcr do
+      described_class.delete('SAMPLE_JOB1')
+    end
+
+    it 'raises a 400 if the job to delete doesn\'t exist', :vcr do
+      expect {
+        described_class.delete('doesnt_exist')
+      }.to raise_error(Chronos::Error::ClientError)
+    end
+  end
+
+
+  describe '.delete_all' do
+    subject { described_class }
+
+    it 'deletes all jobs', :vcr do
+      described_class.delete_all
+    end
+  end
+
+  describe '.start' do
+    subject { described_class }
+
+    it 'starts a job', :vcr do
+      described_class.start('SAMPLE_JOB1')
+    end
+
+    it 'raises a 400 if the jobs to start doesn\'t exist', :vcr do
+      expect {
+        described_class.start('doesnt_exist')
+      }.to raise_error(Chronos::Error::ClientError)
+    end
+  end
 end
