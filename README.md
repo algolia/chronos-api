@@ -23,6 +23,22 @@ $ bundle install
 Usage
 -----
 
+If you're running Chronos locally on port 4400, there is no setup to do in Ruby. If you're not or change the path or port,  you'll have to point the gem to your socket or local/remote port. For example:
+
+```ruby
+Chronos.url = 'http://example.com:8080'
+```
+
+It's possible to use `ENV` variables to configure the endpoint as well:
+
+```shell
+$ CHRONOS_URL=http://remote.chronos.example.com:8080 irb
+irb(main):001:0> require 'chronos'
+=> true
+irb(main):002:0> Chronos.url
+=> "http://remote.chronos.example.com:8080"
+```
+
 ## Authentification
 
 You have two options to set authentification if your Chronos API requires it:
